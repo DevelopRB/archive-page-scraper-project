@@ -1,0 +1,30 @@
+===========================================
+GITHUB PUSH COMMANDS
+===========================================
+
+STEP 1: Create a GitHub repository first!
+Go to: https://github.com/new
+- Name: archive-page-scraper
+- Description: Archive.org page number scraper
+- Public or Private (your choice)
+- DO NOT initialize with README
+- Click "Create repository"
+
+STEP 2: After creating the repo, run these commands:
+
+git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git
+git branch -M main
+git push -u origin main
+
+(Replace YOUR_USERNAME and YOUR_REPO_NAME with your actual GitHub username and repo name)
+
+STEP 3: Deploy to Vercel
+Go to: https://vercel.com/dashboard
+- Click "Add New..." → "Project"
+- Import your GitHub repository
+- Click "Deploy" (Vercel auto-detects Python/Flask)
+- Wait 1-2 minutes
+- Your app will be live!
+
+===========================================
+
