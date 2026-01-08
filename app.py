@@ -6,15 +6,33 @@ from flask import Flask, render_template, request, jsonify, send_file, Response,
 import os
 import json
 import time
-import pandas as pd
-from scrape_page_numbers import scrape_page_number, construct_url, DEFAULT_DELAY_SECONDS, MIN_DELAY_SECONDS
+import sys
+
+try:
+    import pandas as pd
+except ImportError as e:
+    print(f"Warning: pandas import failed: {e}", file=sys.stderr)
+    pd = None
+
+try:
+    from scrape_page_numbers import scrape_page_number, construct_url, DEFAULT_DELAY_SECONDS, MIN_DELAY_SECONDS
+except ImportError as e:
+    print(f"Error: Failed to import scrape_page_numbers: {e}", file=sys.stderr)
+    raise
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 
 # Use /tmp for results file on Vercel (serverless functions have limited write access)
 # On local development, use current directory
-RESULTS_FILE = os.path.join(os.getenv('TMPDIR', os.getcwd()), 'scraping_results.xlsx')
+# Vercel uses /tmp, local uses current directory
+TMP_DIR = os.getenv('TMPDIR') or os.getenv('TMP') or '/tmp'
+if not os.path.exists(TMP_DIR):
+    try:
+        os.makedirs(TMP_DIR, exist_ok=True)
+    except:
+        TMP_DIR = os.getcwd()
+RESULTS_FILE = os.path.join(TMP_DIR, 'scraping_results.xlsx')
 
 
 @app.route('/')
@@ -189,7 +207,7 @@ def download_results():
 
 
 # Vercel serverless function handler
-# Vercel will use this when deployed
+# Export the Flask app for Vercel Python runtime
 handler = app
 
 if __name__ == '__main__':
