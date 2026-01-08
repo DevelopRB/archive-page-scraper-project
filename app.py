@@ -20,7 +20,7 @@ except ImportError as e:
     print(f"Error: Failed to import scrape_page_numbers: {e}", file=sys.stderr)
     raise
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='templates')
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 
 # Use /tmp for results file on Vercel (serverless functions have limited write access)
@@ -114,6 +114,8 @@ def scrape_endpoint():
                 })
             
             # Create DataFrame and save to Excel
+            if pd is None:
+                raise ImportError("pandas is not available")
             df = pd.DataFrame(excel_data)
             with pd.ExcelWriter(RESULTS_FILE, engine='openpyxl') as writer:
                 df.to_excel(writer, sheet_name='Results', index=False)
@@ -207,7 +209,8 @@ def download_results():
 
 
 # Vercel serverless function handler
-# Export the Flask app for Vercel Python runtime
+# Vercel Python runtime expects the Flask app to be exported as 'handler'
+# The Flask app itself is WSGI-compatible, so we can export it directly
 handler = app
 
 if __name__ == '__main__':
