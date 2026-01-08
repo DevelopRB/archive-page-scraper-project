@@ -20,7 +20,11 @@ except ImportError as e:
     print(f"Error: Failed to import scrape_page_numbers: {e}", file=sys.stderr)
     raise
 
-app = Flask(__name__, template_folder='templates')
+# Get the directory where this file is located for template folder
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
+
+app = Flask(__name__, template_folder=TEMPLATE_DIR)
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 
 # Use /tmp for results file on Vercel (serverless functions have limited write access)
@@ -209,9 +213,8 @@ def download_results():
 
 
 # Vercel serverless function handler
-# Vercel Python runtime expects the Flask app to be exported as 'handler'
-# The Flask app itself is WSGI-compatible, so we can export it directly
-handler = app
+# Export the Flask app directly - Vercel's Python runtime will handle it
+# The Flask app is WSGI-compatible and can be used directly
 
 if __name__ == '__main__':
     import os
